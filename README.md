@@ -19,6 +19,5 @@ Soteria is built by:
 Please make sure you install those dependecies before run the engine
 
 # Usage
-1. Via command prompt:
-``` python run_soteria.py test.csv labels.csv```
-2. Via [jupyter notebook](http://github.com)
+1. Via command prompt:``` python run_soteria.py data/test/features data/test/labels```
+2. Via [jupyter notebook](http://github.com/dindanovitasari/soteria/demo.ipynb)
