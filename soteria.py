@@ -202,7 +202,7 @@ class Soteria:
         #y = (y - y.min()) / (y.max() - y.min()) * (num_classes - 1)
         #load model
         model = self.generate_model()
-        model.load_weights('model_tr_weights.h5')
+        model.load_weights('model/model_tr_weights.h5')
         #do prediction
         _, auc_score = model.evaluate(X, to_categorical(y, num_classes), batch_size = self.batch_size)
         print("Jacek AUC Score: {}".format(auc_score))
