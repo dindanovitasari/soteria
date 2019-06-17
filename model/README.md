@@ -1,0 +1,1 @@
+This folder contains model that will be used in Soteria

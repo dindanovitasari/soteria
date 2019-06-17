@@ -8,6 +8,9 @@ from __future__ import print_function
 import warnings
 warnings.filterwarnings("ignore")
 
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 import json
 import pandas as pd
 import numpy as np
@@ -54,10 +57,7 @@ class Soteria:
         label_filepaths = [path.join(label_dir, f) for f in listdir("./{}".format(label_dir)) if f.endswith('.csv')]
         labels = pd.concat(map(pd.read_csv, label_filepaths))
         labels = labels.drop_duplicates(subset = 'bookingID', keep = False).sort_values(by="bookingID").reset_index(drop=True)
-        self.num_classes = len(np.unique(labels["label"]))
-        trip_length = features['bookingID'].value_counts()
-        self.max_timesteps = trip_length.min()
-        
+        self.num_classes = len(np.unique(labels["label"]))        
         return features, labels
     
     def add_features(self, X):
@@ -189,7 +189,7 @@ class Soteria:
         plt.show()        
         
     def run_engine(self, feature_dir, label_dir): 
-        train_stat = json.load(open("train_stat.json","r"))
+        #train_stat = json.load(open("train_stat.json","r"))
         num_classes = 2
         #load dataset
         X, y = self.load_dataset(feature_dir, label_dir)
@@ -198,12 +198,14 @@ class Soteria:
         #cutoff dataset
         X, y = self.cutoff_dataset(X, y)
         #scale dataset
-        X = (X - train_stat["X_train_mean"]) / (train_stat["X_train_std"] + 1e-8)
-        y = (y - y.min()) / (y.max() - y.min()) * (num_classes - 1)
+        #X = (X - np.float32(train_stat["X_train_mean"])) / (np.float32(train_stat["X_train_std"]) + 1e-8)
+        #y = (y - y.min()) / (y.max() - y.min()) * (num_classes - 1)
         #load model
-        model = load_model('model/prod_scaled_model.h5')
+        model = self.generate_model()
+        model.load_weights('model_tr_weights.h5')
         #do prediction
-        print("Jacek AUC Score: {}".format(model.evaluate(X, to_categorical(y, num_classes), batch_size = self.batch_size)))
+        _, auc_score = model.evaluate(X, to_categorical(y, num_classes), batch_size = self.batch_size)
+        print("Jacek AUC Score: {}".format(auc_score))
         y_pred = model.predict(X)
         y_pred_prob = np.max(y_pred, axis=1)
         print("sklearn AUC score: {}".format(metrics.roc_auc_score(y, y_pred_prob)))            
